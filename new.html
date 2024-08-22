@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        /* Basic styling for the quiz */
+        .question-container {
+            margin-bottom: 20px;
+        }
+        .question {
+            font-weight: bold;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        #progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 20px;
+            margin-top: 20px;
+        }
+        #progress-bar-fill {
+            height: 100%;
+            width: 0;
+            background-color: #76c7c0;
+        }
+        #premium-btn, #retry-btn {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz"></div>
+    <div id="progress">
+        <p id="progress-text">Progress: 0/5</p>
+        <div id="progress-bar">
+            <div id="progress-bar-fill"></div>
+        </div>
+    </div>
+    <div id="result"></div>
+    <button id="premium-btn">Upgrade to Premium</button>
+    <button id="retry-btn" onclick="retryQuiz()">Try Again</button>
+
+    <script>
+        const questions = [
+            {
+                question: "1. Which of the following emotions is most likely to cause a trader to hold onto a losing position for too long?",
+                answers: [
+                    { option: "A) Excitement", isCorrect: false },
+                    { option: "B) Fear", isCorrect: true },
+                    { option: "C) Greed", isCorrect: false },
+                    { option: "D) Overconfidence", isCorrect: false }
+                ]
+            },
+            {
+                question: "2. What is the primary impact of overconfidence on a trader's decision-making process?",
+                answers: [
+                    { option: "A) Increased caution in trades", isCorrect: false },
+                    { option: "B) Deviation from the trading plan", isCorrect: true },
+                    { option: "C) Reduced risk-taking", isCorrect: false },
+                    { option: "D) Avoidance of all trades", isCorrect: false }
+                ]
+            },
+            {
+                question: "3. Which cognitive bias occurs when traders focus only on information that supports their existing beliefs?",
+                answers: [
+                    { option: "A) Loss Aversion", isCorrect: false },
+                    { option: "B) Anchoring Bias", isCorrect: false },
+                    { option: "C) Confirmation Bias", isCorrect: true },
+                    { option: "D) Availability Bias", isCorrect: false }
+                ]
+            },
+            {
+                question: "4. Which of the following best describes a growth mindset in forex trading?",
+                answers: [
+                    { option: "A) Avoiding trades to prevent losses", isCorrect: false },
+                    { option: "B) Focusing only on profitable strategies and ignoring failures", isCorrect: false },
+                    { option: "C) Continuously learning from mistakes and improving strategies", isCorrect: true },
+                    { option: "D) Relying on intuition rather than analysis for trades", isCorrect: false }
+                ]
+            },
+            {
+                question: "5. What role does stress management play in forex trading?",
+                answers: [
+                    { option: "A) It helps traders avoid making any trades.", isCorrect: false },
+                    { option: "B) It enhances emotional regulation, leading to better decision-making under pressure.", isCorrect: true },
+                    { option: "C) It encourages traders to take more significant risks.", isCorrect: false },
+                    { option: "D) It eliminates the need for a trading plan.", isCorrect: false }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const quizDiv = document.getElementById('quiz');
+            quizDiv.innerHTML = '';
+
+            if (currentQuestionIndex < questions.length) {
+                const questionObj = questions[currentQuestionIndex];
+                const questionContainer = document.createElement('div');
+                questionContainer.classList.add('question-container');
+
+                const questionElem = document.createElement('p');
+                questionElem.classList.add('question');
+                questionElem.innerText = questionObj.question;
+                questionContainer.appendChild(questionElem);
+
+                const ulElem = document.createElement('ul');
+                questionObj.answers.forEach(answer => {
+                    const liElem = document.createElement('li');
+                    const buttonElem = document.createElement('button');
+                    buttonElem.innerText = answer.option;
+                    buttonElem.onclick = () => checkAnswer(answer.isCorrect);
+                    liElem.appendChild(buttonElem);
+                    ulElem.appendChild(liElem);
+                });
+
+                questionContainer.appendChild(ulElem);
+                quizDiv.appendChild(questionContainer);
+            } else {
+                showResult();
+            }
+        }
+
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                score++;
+            }
+            currentQuestionIndex++;
+            updateProgressBar();
+            loadQuestion();
+        }
+
+        function updateProgressBar() {
+            const progressText = document.getElementById('progress-text');
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const progressPercentage = (currentQuestionIndex / questions.length) * 100;
+            
+            progressText.innerText = `Progress: ${currentQuestionIndex}/${questions.length}`;
+            progressBarFill.style.width = `${progressPercentage}%`;
+        }
+
+        function showResult() {
+            const resultDiv = document.getElementById('result');
+            const premiumBtn = document.getElementById('premium-btn');
+            const retryBtn = document.getElementById('retry-btn');
+            const progressDiv = document.getElementById('progress');
+            const quizDiv = document.getElementById('quiz');
+
+            quizDiv.style.display = 'none'; // Hide the quiz
+            progressDiv.style.display = 'none'; // Hide the progress bar
+
+            resultDiv.style.display = 'block';
+            retryBtn.style.display = 'block'; // Show the "Try Again" button
+
+            if (score >= 3) {
+                resultDiv.innerText = `Congratulations! You scored ${score} out of ${questions.length}.`;
+                premiumBtn.style.display = 'block'; // Show the premium button only if the score is 3 or more
+            } else {
+                resultDiv.innerText = `Your score is ${score}. Please try again.`;
+            }
+        }
+
+        function retryQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('premium-btn').style.display = 'none';
+            document.getElementById('retry-btn').style.display = 'none';
+            document.getElementById('progress').style.display = 'block';
+            document.getElementById('quiz').style.display = 'block';
+            updateProgressBar();
+            loadQuestion();
+        }
+
+        // Initialize the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
